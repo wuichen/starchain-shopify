@@ -1,0 +1,13 @@
+const {
+  SHOPIFY_APP_KEY,
+  SHOPIFY_APP_HOST,
+  SHOPIFY_APP_SECRET,
+  NODE_ENV,
+} = process.env;
+
+module.exports = {
+	SHOPIFY_APP_KEY,
+  SHOPIFY_APP_HOST,
+  SHOPIFY_APP_SECRET,
+  NODE_ENV,
+}
