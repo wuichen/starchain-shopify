@@ -8,13 +8,15 @@ const {
 
 router.get(['/', '/apiconsole', '/account'], withShop({authBaseUrl: '/shopify'}), function(request, response) {
   const { session: { shop, accessToken, id_token } } = request;
+  if (id_token) {
+    response.cookie('id_token', id_token)
+  }
   console.log(shop, accessToken, id_token)
 
   return response.render('app', {
     title: 'Starchain',
     apiKey: SHOPIFY_APP_KEY,
     shop: shop,
-    id_token: id_token
   });
 });
 

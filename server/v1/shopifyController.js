@@ -30,12 +30,12 @@ const shopifyConfig = {
       const id = authShop.id.toString()
       const dbShop = await db.collection('shops').doc(id).get()
 
-
       if (dbShop.exists) {
-        response.cookie('shop_exists', true).redirect('/');
-      } else {
-        response.cookie('shop_exists', false).redirect('/');
+        const customToken = await admin.auth().createCustomToken(dbShop.data().uid)
+        request.session.id_token = customToken
       }
+      response.redirect('/');
+
     } catch (err) {
       // TODO: find a better solution for error handling here 
       // TODO: log error

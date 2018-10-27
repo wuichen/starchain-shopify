@@ -15,10 +15,12 @@ const {
 
 router.post('/api/connect', async (req, res) => {
   const { session: { shop, accessToken } } = req;
+
   if (!shop || !accessToken) {
     return res.status(500).send('missing shop or accessToken')
   } else {
     try {
+
       const shopify = new ShopifyAPIClient({ shopName: shop, accessToken: accessToken });
       const authShop = await shopify.shop.get()
       const authShop_id = authShop.id.toString()
@@ -42,7 +44,7 @@ router.post('/api/connect', async (req, res) => {
           password: randomPassword,
           disabled: false
         })
-
+        authShop.uid = newShopUser.uid
         const product_listings = await shopify.productListing.list()
         let products = await shopify.product.list()
 
@@ -73,9 +75,8 @@ router.post('/api/connect', async (req, res) => {
           newShopBatch.set(productRef, products[i])
         } 
         const newShopBatchWrite = await newShopBatch.commit()
-
         // create a custom token and send it back to the client with cookie to store
-        const customToken = await admin.auth().createCustomToken(uid)
+        const customToken = await admin.auth().createCustomToken(newShopUser.uid)
 
         // TODO: register webhooks here !!
         // registerWebhook(shop, accessToken, {
@@ -83,20 +84,25 @@ router.post('/api/connect', async (req, res) => {
         //   address: `${SHOPIFY_APP_HOST}/order-create`,
         //   format: 'json'
         // });
+        
         req.session.id_token = customToken
+        res.cookie('id_token', customToken)
         return res.send('success')
       } else {
         return res.status(500).send('shop exists')
       }
     } catch (err) {
-      if (newShopUser) {
-        try {
-          await admin.auth().deleteUser(newShopUser.uid)
-        } catch (rollbackErr) {
-          // TODO: error logger for rollback error
-          return res.status(500).send(err)
-        }
-      }
+      // roll back mechanism. do i need this? or should i just log the error and fix the 
+      // issue myself
+      // this temporary rollback solution is to remove the newly created user if the transaction fails      
+      // if (newShopUser) {
+      //   try {
+      //     await admin.auth().deleteUser(newShopUser.uid)
+      //   } catch (rollbackErr) {
+      //     // TODO: error logger for rollback error
+      //     return res.status(500).send(err)
+      //   }
+      // }
       // data creation error
       return res.status(500).send(err)
     }

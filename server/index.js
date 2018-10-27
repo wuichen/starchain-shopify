@@ -61,7 +61,7 @@ if (isDevelopment) {
   app.use('/assets', express.static(staticPath));
 }
 
-// app using v1 routing
+// app using v1 router
 app.use(v1)
 
 // Install

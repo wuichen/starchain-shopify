@@ -2,6 +2,7 @@ import React, { Component} from 'react';
 import { connect } from 'react-redux';
 import { Page, Layout, Stack, Card, TextField, Button } from '@shopify/polaris';
 import {AccountConnection, Link} from '@shopify/polaris';
+import Cookie from 'js-cookie';
 
 class Account extends Component {
   constructor(props) {
@@ -10,6 +11,10 @@ class Account extends Component {
       connected: false,
       accountName: ''
     }
+  }
+
+  componentDidMount() {
+    console.log(Cookie.get('id_token'))
   }
 
   async connect() {
